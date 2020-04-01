@@ -49,9 +49,27 @@ Output:
 
  */
 
+import java.util.stream.Collectors;
+
 public class Solution {
+    private static final int LOWER_A = 'a';
+    private static final int LOWER_Z = 'z';
+
     public static String solution(String x) {
-        return "foobar";
+        char[] characters = x.toCharArray();
+        for (int i = 0; i < characters.length; i++) {
+            characters[i] = mapCharacter(characters[i]);
+        }
+
+        return new String(characters);
+    }
+
+    private static char mapCharacter(char character) {
+        if ((int) character >= LOWER_A && (int) character <= LOWER_Z) {
+            int distanceToLowerA = (int) character - LOWER_A;
+            return (char)(LOWER_Z - distanceToLowerA);
+        }
+        return character;
     }
 
     public static void main(String[] args) {
