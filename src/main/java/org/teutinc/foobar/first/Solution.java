@@ -54,8 +54,8 @@ public class Solution {
     private static final int LOWER_Z = 'z';
 
     public static String solution(String x) {
-        char[] characters = x.toCharArray();
-        for (int i = 0; i < characters.length; i++) {
+        var characters = x.toCharArray();
+        for (var i = 0; i < characters.length; i++) {
             characters[i] = mapCharacter(characters[i]);
         }
 
@@ -64,7 +64,7 @@ public class Solution {
 
     private static char mapCharacter(char character) {
         if ((int) character >= LOWER_A && (int) character <= LOWER_Z) {
-            int distanceToLowerA = (int) character - LOWER_A;
+            var distanceToLowerA = (int) character - LOWER_A;
             return (char)(LOWER_Z - distanceToLowerA);
         }
         return character;

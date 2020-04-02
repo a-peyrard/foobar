@@ -9,9 +9,6 @@
 plugins {
     // Apply the java plugin to add support for Java
     java
-
-    // Apply the application plugin to add support for building a CLI application.
-    application
 }
 
 repositories {
@@ -29,11 +26,6 @@ dependencies {
 
     // Use JUnit Jupiter Engine for testing.
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
-}
-
-application {
-    // Define the main class for the application.
-    mainClassName = "org.teutinc.foobar.App"
 }
 
 val test by tasks.getting(Test::class) {
