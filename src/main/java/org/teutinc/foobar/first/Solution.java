@@ -49,8 +49,6 @@ Output:
 
  */
 
-import java.util.stream.Collectors;
-
 public class Solution {
     private static final int LOWER_A = 'a';
     private static final int LOWER_Z = 'z';
@@ -70,21 +68,5 @@ public class Solution {
             return (char)(LOWER_Z - distanceToLowerA);
         }
         return character;
-    }
-
-    public static void main(String[] args) {
-        String[][] tests = {
-                {"Yvzs! I xzm'g yvorvev Lzmxv olhg srh qly zg gsv xlolmb!!", "Yeah! I can't believe Lance lost his job at the colony!!"},
-                {"wrw blf hvv ozhg mrtsg'h vkrhlwv?", "did you see last night's episode?"}
-        };
-
-        for (String[] test : tests) {
-            String res = solution(test[0]);
-            if (res.equals(test[1])) {
-                System.out.printf("[SUCCESS] For message %s: got expected message %s%n", test[0], test[1]);
-            } else {
-                System.out.printf("[FAIL] For message %s: expected %s, got %s%n", test[0], test[1], res);
-            }
-        }
     }
 }
