@@ -1,6 +1,7 @@
-package org.teutinc.foobar.second;
+package org.teutinc.foobar.second.part1;
 
 import org.junit.jupiter.api.Test;
+import org.teutinc.foobar.second.part1.Solution;
 
 import static org.junit.jupiter.api.Assertions.*;
 

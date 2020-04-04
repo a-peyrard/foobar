@@ -1,4 +1,4 @@
-package org.teutinc.foobar.second;
+package org.teutinc.foobar.second.part1;
 
 import java.util.ArrayList;
 import java.util.List;

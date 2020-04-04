@@ -1,4 +1,4 @@
-package org.teutinc.foobar.second;
+package org.teutinc.foobar.second.part1;
 
 /*
     Alternative solution, way more simple to the problem.
