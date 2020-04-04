@@ -1,5 +1,7 @@
 package org.teutinc.foobar.second.part2;
 
+import java.util.Arrays;
+
 /*
 Elevator Maintenance
 ====================
@@ -59,6 +61,31 @@ be removed from your home folder.
  */
 public class Solution {
     public static String[] solution(String[] l) {
-        return new String[]{};
+        // would be so much more elegant with tuples (in order to still be typed) :/
+        return Arrays.stream(l)
+                     .map(element -> new Object[]{element, normalize(element)})
+                     .sorted((t1, t2) -> compare((int[]) t1[1], (int[]) t2[1]))
+                     .map(tuple -> (String) tuple[0])
+                     .toArray(String[]::new);
+    }
+
+    private static int[] normalize(String version) {
+        int[] normalized = {-1, -1, -1};
+        String[] tokens = version.split("\\.");
+        for (int i = 0; i < tokens.length; i++) {
+            normalized[i] = Integer.parseInt(tokens[i]);
+        }
+        return normalized;
+    }
+
+    private static int compare(int[] o1, int[] o2) {
+        for (int i = 0; i < 3; i++) {
+            if (o1[i] < o2[i]) {
+                return -1;
+            } else if (o1[i] > o2[i]) {
+                return 1;
+            }
+        }
+        return 0;
     }
 }
