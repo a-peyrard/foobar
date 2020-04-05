@@ -2,7 +2,7 @@ package org.teutinc.foobar.third.part1;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SolutionTest {
     @Test
@@ -295,6 +295,61 @@ class SolutionTest {
         assertEquals(
             "8510201",
             res
+        );
+    }
+
+    @Test
+    void it_should_validate_0_X_case() {
+        // GIVEN
+        var x = "0";
+        var y = "12";
+
+        // WHEN
+        var res = Solution.solution(x, y);
+
+        // THEN
+        assertEquals(
+            "impossible",
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_X_0_case() {
+        // GIVEN
+        var x = "12";
+        var y = "0";
+
+        // WHEN
+        var res = Solution.solution(x, y);
+
+        // THEN
+        assertEquals(
+            "impossible",
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_optimized_case() {
+        // GIVEN a huge number, we will just expect to
+        // finish the computation is less than one sec.
+        // Not a big fan of unit tests having some time dependency,
+        // but one sec should be large enough, and if the code
+        // is not optimized, there is no way we can compute that in one sec
+        // (or I definitely want this computer :))
+        var x = "125678800000000000000000000000000000000000000";
+        var y = "3";
+
+        // WHEN
+        var start = System.currentTimeMillis();
+        var res = Solution.solution(x, y);
+        var end = System.currentTimeMillis();
+
+        // THEN
+        assertNotNull(res); // we don't care about the result
+        assertTrue(
+            (end - start) < 1000
         );
     }
 }

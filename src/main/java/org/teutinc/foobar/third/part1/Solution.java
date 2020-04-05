@@ -78,22 +78,36 @@ public class Solution {
             if (second.equals(BigInteger.ONE)) {
                 return numberOfSteps.add(first.subtract(BigInteger.ONE)).toString();
             }
+
             // if we have more facula than mash, it means that previous step was
             final int firstComparedToSecond = first.compareTo(second);
             if (firstComparedToSecond < 0) {
                 // if (x > y) we can not remove x from y, we will have a negative case (7, 4) could not have
                 // a predecessor where mash where use to create facula
-                second = second.subtract(first);
+                // we will also optimize, as for example if we have (4, 27), we don't want to do 6 steps
+                // to end to (4, 3), we can directly do: floor(27/4) = 6, and then y = 27 - 6*4 = 3, and increment nb
+                // steps by 6.
+                BigInteger[] tuple = subtract(second, first);
+                second = tuple[0];
+                numberOfSteps = numberOfSteps.add(tuple[1]);
             } else if (firstComparedToSecond > 0) {
-                first = first.subtract(second);
+                BigInteger[] tuple = subtract(first, second);
+                first = tuple[0];
+                numberOfSteps = numberOfSteps.add(tuple[1]);
             } else {
                 // this is an impossible case, we can not manage to get (x, x) except for (1, 1)
                 return "impossible";
             }
-
-            numberOfSteps = numberOfSteps.add(BigInteger.ONE);
         }
 
         return "impossible";
+    }
+
+    static BigInteger[] subtract(BigInteger toBeSubtracted, BigInteger toSubtract) {
+        BigInteger rounds = toBeSubtracted.divide(toSubtract);
+        return new BigInteger[]{
+            toBeSubtracted.subtract(toSubtract.multiply(rounds)),
+            rounds
+        };
     }
 }
