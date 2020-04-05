@@ -1,5 +1,8 @@
 package org.teutinc.foobar.third.part1;
 
+import javax.annotation.Nullable;
+import java.math.BigInteger;
+
 /*
 Bomb, Baby!
 ===========
@@ -64,6 +67,41 @@ be removed from your home folder.
  */
 public class Solution {
     public static String solution(String x, String y) {
-        return "";
+        BigInteger res = reduce(new BigInteger(x), new BigInteger(y), new BigInteger("0"));
+        if (res == null) {
+            return "impossible";
+        }
+        return res.toString();
+    }
+
+    // return value is nullable, null meaning no solution
+    private static @Nullable BigInteger reduce(BigInteger x, BigInteger y, BigInteger numberOfSteps) {
+        if (x.equals(BigInteger.ONE)) {
+            return numberOfSteps.add(y.subtract(BigInteger.ONE)); // (1, X) is done in X-1 steps
+        }
+        if (y.equals(BigInteger.ONE)) {
+            return numberOfSteps.add(x.subtract(BigInteger.ONE));
+        }
+
+        // analyze previous case where Facula bomb where created
+        BigInteger numberOfStepsFacula = null;
+        if (x.compareTo(y) < 0) {
+            // if (x > y) we can not remove x from y, we will have a negative case (7, 4) could not have
+            // a predecessor where mash where use to create facula
+            numberOfStepsFacula = reduce(x, y.subtract(x), numberOfSteps.add(BigInteger.ONE));
+        }
+
+        BigInteger numberOfStepsMash = null;
+        if (y.compareTo(x) < 0) {
+            numberOfStepsMash = reduce(x.subtract(y), y, numberOfSteps.add(BigInteger.ONE));
+        }
+
+        if (numberOfStepsFacula != null) {
+            if (numberOfStepsMash != null) {
+                return numberOfStepsFacula.min(numberOfStepsMash);
+            }
+            return numberOfStepsFacula;
+        }
+        return numberOfStepsMash;
     }
 }
