@@ -1,6 +1,5 @@
 package org.teutinc.foobar.third.part1;
 
-import javax.annotation.Nullable;
 import java.math.BigInteger;
 
 /*
@@ -67,41 +66,34 @@ be removed from your home folder.
  */
 public class Solution {
     public static String solution(String x, String y) {
-        BigInteger res = reduce(new BigInteger(x), new BigInteger(y), new BigInteger("0"));
-        if (res == null) {
-            return "impossible";
-        }
-        return res.toString();
-    }
+        BigInteger first = new BigInteger(x);
+        BigInteger second = new BigInteger(y);
+        BigInteger numberOfSteps = new BigInteger("0");
 
-    // return value is nullable, null meaning no solution
-    private static @Nullable BigInteger reduce(BigInteger x, BigInteger y, BigInteger numberOfSteps) {
-        if (x.equals(BigInteger.ONE)) {
-            return numberOfSteps.add(y.subtract(BigInteger.ONE)); // (1, X) is done in X-1 steps
-        }
-        if (y.equals(BigInteger.ONE)) {
-            return numberOfSteps.add(x.subtract(BigInteger.ONE));
-        }
-
-        // analyze previous case where Facula bomb where created
-        BigInteger numberOfStepsFacula = null;
-        if (x.compareTo(y) < 0) {
-            // if (x > y) we can not remove x from y, we will have a negative case (7, 4) could not have
-            // a predecessor where mash where use to create facula
-            numberOfStepsFacula = reduce(x, y.subtract(x), numberOfSteps.add(BigInteger.ONE));
-        }
-
-        BigInteger numberOfStepsMash = null;
-        if (y.compareTo(x) < 0) {
-            numberOfStepsMash = reduce(x.subtract(y), y, numberOfSteps.add(BigInteger.ONE));
-        }
-
-        if (numberOfStepsFacula != null) {
-            if (numberOfStepsMash != null) {
-                return numberOfStepsFacula.min(numberOfStepsMash);
+        // we will decrement the number of bombs in each steps, to backtrack and see how we've been here
+        while (first.compareTo(BigInteger.ZERO) > 0 && second.compareTo(BigInteger.ZERO) > 0) { // safety, but while true would have been the same...
+            if (first.equals(BigInteger.ONE)) {
+                return numberOfSteps.add(second.subtract(BigInteger.ONE)).toString(); // (1, X) is done in X-1 steps
             }
-            return numberOfStepsFacula;
+            if (second.equals(BigInteger.ONE)) {
+                return numberOfSteps.add(first.subtract(BigInteger.ONE)).toString();
+            }
+            // if we have more facula than mash, it means that previous step was
+            final int firstComparedToSecond = first.compareTo(second);
+            if (firstComparedToSecond < 0) {
+                // if (x > y) we can not remove x from y, we will have a negative case (7, 4) could not have
+                // a predecessor where mash where use to create facula
+                second = second.subtract(first);
+            } else if (firstComparedToSecond > 0) {
+                first = first.subtract(second);
+            } else {
+                // this is an impossible case, we can not manage to get (x, x) except for (1, 1)
+                return "impossible";
+            }
+
+            numberOfSteps = numberOfSteps.add(BigInteger.ONE);
         }
-        return numberOfStepsMash;
+
+        return "impossible";
     }
 }

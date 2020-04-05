@@ -2,7 +2,7 @@ package org.teutinc.foobar.third.part1;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SolutionTest {
     @Test
@@ -278,7 +278,12 @@ class SolutionTest {
     }
 
     @Test
-    void it_should_validate_case_weird() {
+    void it_should_validate_big_big_case() {
+        /*
+            we have no proof for its correctness,
+            but at least it should not end in stack overflow...
+         */
+
         // GIVEN
         var x = "794322434343324343344343243355555";
         var y = "93342432434343433243432342";
@@ -288,7 +293,7 @@ class SolutionTest {
 
         // THEN
         assertEquals(
-            "5",
+            "8510201",
             res
         );
     }
