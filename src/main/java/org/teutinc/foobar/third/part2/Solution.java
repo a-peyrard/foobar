@@ -1,5 +1,7 @@
 package org.teutinc.foobar.third.part2;
 
+import java.util.Arrays;
+
 /*
 The Grandest Staircase Of Them All
 ==================================
@@ -78,7 +80,31 @@ Use verify [file] to test your solution and see how it does. When you are finish
 be removed from your home folder.
  */
 public class Solution {
+    /*
+        This is the sequence of partition with distinct parts http://oeis.org/A000009
+
+        We are just removing 1 to the result, as we want at least 2 steps in our staircase.
+     */
     public static int solution(int n) {
-        return 0; // fixme
+        int[][] memo = new int[n + 1][];
+        for (int i = 0; i < n + 1; i++) {
+            memo[i] = new int[n + 1];
+            Arrays.fill(memo[i], -1);
+        }
+
+        return q(1, n, memo) - 1;
+    }
+
+    static int q(int k, int n, int[][] memo) {
+        if (k > n) {
+            return 0;
+        }
+        if (k == n) {
+            return 1;
+        }
+        if (memo[k][n] == -1) {
+            memo[k][n] = q(k + 1, n, memo) + q(k + 1, n - k, memo);
+        }
+        return memo[k][n];
     }
 }
