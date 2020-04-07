@@ -34,4 +34,34 @@ class SolutionTest {
             res
         );
     }
+
+    @Test
+    void it_should_find_same_number() {
+        // GIVEN
+        var l = new int[]{234, 11, 2, 11, 28, 11, 147};
+
+        // WHEN
+        var res = Solution.solution(l);
+
+        // THEN
+        assertEquals(
+            1,
+            res
+        );
+    }
+
+    @Test
+    void it_should_find_ugly_cases() {
+        // GIVEN
+        var l = new int[]{999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999, 999999};
+
+        // WHEN
+        var res = Solution.solution(l);
+
+        // THEN
+        assertEquals(
+            455,
+            res
+        );
+    }
 }
