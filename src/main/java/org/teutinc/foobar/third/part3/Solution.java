@@ -1,12 +1,5 @@
 package org.teutinc.foobar.third.part3;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
 /*
 Find the Access Codes
 =====================
@@ -63,66 +56,24 @@ Use verify [file] to test your solution and see how it does. When you are finish
 be removed from your home folder.
  */
 public class Solution {
-    static List<Integer> getDivisors(int n) {
-        List<Integer> divisors = new ArrayList<>();
-        final double sqrt = Math.sqrt(n);
-        for (int i = 1; i <= sqrt; i++) {
-            if (n % i == 0) {
-                divisors.add(i);
-                if (i != sqrt) {
-                    divisors.add(n / i);
-                }
-            }
-        }
-        return divisors;
-    }
-
-    static <K, V> V getOrCompute(Map<K, V> map, K key, Function<K, V> valueComputer) {
-        V value = map.get(key);
-        if (value == null) {
-            value = valueComputer.apply(key);
-            map.put(key, value);
-        }
-        return value;
-    }
-
     public static int solution(int[] l) {
-        // index all elements of the list and their positions
-        Map<Integer, List<Integer>> indexes = new HashMap<>();
-        for (int i = 0; i < l.length; i++) {
-            getOrCompute(indexes, l[i], ArrayList::new).add(i);
+        if (l.length < 3) {
+            return 0;
         }
 
-        Map<Integer, List<Integer>> divisorsCache = new HashMap<>();
-        // now we will loop over the list in the reverse direction, because
-        // we need to find triplet (li, lj, lk) with k > j > i
+        // we will cache for each index the number of (i, j)
+        int[] numberOfIJCouples = new int[l.length];
+
         int numberOfSolutions = 0;
-        for (int k = l.length - 1; k >= 2; k--) {
-            // get the divisors of lk
-            final List<Integer> lkDivisors = getOrCompute(divisorsCache, l[k], Solution::getDivisors);
-            for (Integer lkDivisor : lkDivisors) {
-                // get the biggest position for this divisor, that is less than k
-                final List<Integer> lkDivisorPositions = indexes.getOrDefault(lkDivisor, Collections.emptyList());
-                for (int i = lkDivisorPositions.size() - 1; i >= 0; i--) {
-                    final Integer lkDivisorPosition = lkDivisorPositions.get(i);
-                    if (lkDivisorPosition < k) {
-                        final int j = lkDivisorPosition;
-                        if (j >= 1) {
-                            // we have (lj, lk), so let's find if we manage to find a li
-                            final List<Integer> ljDivisors = getOrCompute(divisorsCache, lkDivisor, Solution::getDivisors);
-                            for (Integer ljDivisor : ljDivisors) {
-                                final List<Integer> ljDivisorPositions = indexes.getOrDefault(ljDivisor, Collections.emptyList());
-                                for (Integer ljDivisorPosition : ljDivisorPositions) {
-                                    if (ljDivisorPosition < j) {
-                                        // we manage to find one li
-                                        numberOfSolutions++;
-                                    } else {
-                                        break; // the list is sorted, don't go further, we will always be bigger than j
-                                    }
-                                }
-                            }
-                        }
-                    }
+        for (int k = 1; k < l.length; k++) {
+            for (int j = 0; j < k; j++) {
+                if (l[k] % l[j] == 0) {
+                    // j is a divisor of k, so let's store the fact that we find a (i, j)
+                    // couple (j being i, and k being j)
+                    numberOfIJCouples[k]++;
+                    // as we have k and j, the number of solutions will the number of (i, j) couples
+                    // that have already been seen for j
+                    numberOfSolutions += numberOfIJCouples[j];
                 }
             }
         }
