@@ -145,28 +145,14 @@ public class Solution {
         for (int predecessor = 0; predecessor < paths.length; predecessor++) {
             int possibleFlow = paths[predecessor][vertex];
             if (possibleFlow != 0) {
-                int actualFlow = 0;
+                int availableFlowAtPredecessor = 0;
                 if (visited.contains(predecessor)) {
                     // the vertex has already been visited, but maybe there is still some available flow in it
-                    int remainingFlow = remainingFlows[predecessor];
-                    if (remainingFlow > 0) {
-                        if (remainingFlow == Integer.MAX_VALUE) {
-                            // the node is having some infinite flow, so just get as much as we want
-                            actualFlow = possibleFlow;
-                        } else if (remainingFlow > possibleFlow) {
-                            // we have more remaining flow that we can take, just take
-                            // as much as we can
-                            actualFlow = possibleFlow;
-                            remainingFlows[predecessor] -= possibleFlow;
-                        } else {
-                            // just take what is available
-                            actualFlow = remainingFlows[predecessor];
-                            remainingFlows[predecessor] = 0;
-                        }
-                    }
+                    availableFlowAtPredecessor = remainingFlows[predecessor];
+                    takeRemainingFlow(predecessor, remainingFlows, possibleFlow);
                 } else {
                     // visit the unvisited vertex
-                    actualFlow = visit(
+                    availableFlowAtPredecessor = visit(
                         predecessor,
                         Math.min(maxAllowedFlow, possibleFlow),
                         possibleFlow,
@@ -176,9 +162,9 @@ public class Solution {
                         remainingFlows,
                         depth + 1
                     );
-                    if (DEBUG) log(format("actual flow from %d is %d", predecessor, actualFlow), depth);
+                    if (DEBUG) log(format("actual flow from %d is %d", predecessor, availableFlowAtPredecessor), depth);
                 }
-                availableFlow += actualFlow;
+                availableFlow += Math.min(availableFlowAtPredecessor, possibleFlow);
             }
         }
 
@@ -188,12 +174,19 @@ public class Solution {
             // comes here
             remainingFlows[vertex] = availableFlow - maxAllowedFlow;
             if (DEBUG) log(format("<- exit %d with remaining flow: %d", vertex, remainingFlows[vertex]), depth);
-            return maxAllowedFlow;
         } else {
             // in this case, we are taking all the available flow, we would have loved
             // to get more, but just take what is available
             if (DEBUG) log(format("<- exit %d no remaining flow", vertex), depth);
-            return availableFlow;
+        }
+
+        return availableFlow;
+    }
+
+    static void takeRemainingFlow(int vertex, int[] remainingFlows, int requestedFlow) {
+        remainingFlows[vertex] -= requestedFlow;
+        if (remainingFlows[vertex] < 0) {
+            remainingFlows[vertex] = 0;
         }
     }
 

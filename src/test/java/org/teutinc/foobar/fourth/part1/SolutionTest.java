@@ -320,4 +320,91 @@ class SolutionTest {
             res
         );
     }
+
+    @Test
+    void it_should_validate_new_first_case() {
+        // GIVEN
+        /*
+                            /--5-> 3
+            0 -8-> 1 -13-> 2
+                            \--5-> 4
+         */
+
+        var entrances = new int[]{0};
+        var exits = new int[]{3, 4};
+        var paths = new int[][]{
+            {0, 8, 0, 0, 0},
+            {0, 0, 13, 0, 0},
+            {0, 0, 0, 5, 5},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+        };
+
+        // WHEN
+        var res = Solution.solution(entrances, exits, paths);
+
+        // THEN
+        assertEquals(
+            8,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_new_second_case() {
+        // GIVEN
+        /*
+                            /--5-> 3
+            0 -13-> 1 -8-> 2
+                            \--5-> 4
+         */
+
+        var entrances = new int[]{0};
+        var exits = new int[]{3, 4};
+        var paths = new int[][]{
+            {0, 13, 0, 0, 0},
+            {0, 0, 8, 0, 0},
+            {0, 0, 0, 5, 5},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+        };
+
+        // WHEN
+        var res = Solution.solution(entrances, exits, paths);
+
+        // THEN
+        assertEquals(
+            8,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_new_third_case() {
+        // GIVEN
+        /*
+                            /--15-> 3
+            0 -13-> 1 -8-> 2
+                            \--5-> 4
+         */
+
+        var entrances = new int[]{0};
+        var exits = new int[]{3, 4};
+        var paths = new int[][]{
+            {0, 13, 0, 0, 0},
+            {0, 0, 8, 0, 0},
+            {0, 0, 0, 5, 5},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+        };
+
+        // WHEN
+        var res = Solution.solution(entrances, exits, paths);
+
+        // THEN
+        assertEquals(
+            8,
+            res
+        );
+    }
 }
