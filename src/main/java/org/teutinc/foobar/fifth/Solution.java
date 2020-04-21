@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -110,6 +110,8 @@ public class Solution {
         final int left;
         // producing
         final boolean producingOne;
+        // vertical symmetry
+        final boolean symmetric;
 
         Piece(int drawing) {
             this.drawing = drawing;
@@ -118,6 +120,7 @@ public class Solution {
             this.bottom = drawing & 0b11;
             this.left = ((drawing >> 2) & 0b10) | ((drawing >> 1) & 0b1);
             this.producingOne = isPowerOf2(drawing);
+            this.symmetric = this.left == this.right;
         }
 
         @Override
@@ -145,6 +148,40 @@ public class Solution {
         new Piece(15), // 1111 -> 0
     };
 
+    static final Set<Integer> UNIQUE_DRAWINGS =
+        Arrays.stream(new int[]{
+            // 00
+            // 00 -> 0
+            0,
+            // 00
+            // 01 -> 1
+            1, // merged with 2
+            // 00
+            // 11 -> 0
+            3,
+            // 01
+            // 00 -> 1
+            4, // merged with 8
+            // 01
+            // 01 -> 0
+            5, // merged with 10
+            // 01
+            // 10 -> 0
+            6, // merged with 9
+            // 01
+            // 11 -> 0
+            7, // merged with 11
+            // 11
+            // 00 -> 0
+            12,
+            // 11
+            // 01 -> 0
+            13, // merged with 14
+            // 11
+            // 11 -> 0
+            15,
+        }).boxed().collect(Collectors.toSet());
+
     static final Piece[] PRODUCES_ONE =
         IntStream.range(0, 16)
                  .filter(index -> ALL_PIECES[index].producingOne)
@@ -158,16 +195,10 @@ public class Solution {
                  .toArray(Piece[]::new);
 
     interface Constraints {
-        Stream<Piece> filterPiecesByPreviousCol(Piece[] pieces, int rowIdx);
         long getNumberOfPermutationsFor(int leftColumn);
     }
 
     static class NoConstraints implements Constraints {
-        @Override
-        public Stream<Piece> filterPiecesByPreviousCol(Piece[] pieces, int rowIdx) {
-            return Arrays.stream(pieces);
-        }
-
         @Override
         public long getNumberOfPermutationsFor(int leftColumn) {
             return 1;
@@ -179,18 +210,6 @@ public class Solution {
 
         PreviousColConstraints(Map<Integer, Long> previousPermutations) {
             this.previousPermutations = previousPermutations;
-        }
-
-        @Override
-        public Stream<Piece> filterPiecesByPreviousCol(Piece[] pieces, int rowIdx) {
-            return Arrays.stream(pieces)
-                         .filter(piece ->
-                             previousPermutations.keySet()
-                                                 .stream()
-                                                 .anyMatch(previous ->
-                                                     ((previous >> rowIdx) & 0b11) == piece.left
-                                                 )
-                         );
         }
 
         @Override
@@ -208,7 +227,7 @@ public class Solution {
         List<Vertex> children();
         /*@Nullable*/ int[] columns();
         List<int[]> appendToCombinations(List<int[]> childCombinations, int depth, int numberOfRows);
-        String dump();
+        boolean hasNotSymmetricDrawing();
     }
 
     static abstract class BaseVertex implements Vertex {
@@ -266,8 +285,8 @@ public class Solution {
         }
 
         @Override
-        public String dump() {
-            return "root";
+        public boolean hasNotSymmetricDrawing() {
+            return true;
         }
     }
 
@@ -337,8 +356,8 @@ public class Solution {
         }
 
         @Override
-        public String dump() {
-            return String.format("%d (%s)", piece.drawing, formatBinary(piece.drawing, 4));
+        public boolean hasNotSymmetricDrawing() {
+            return !piece.symmetric;
         }
     }
 
@@ -346,7 +365,52 @@ public class Solution {
         It analyzes a row, it will get all combination possible of pieces that are respecting the drawing for this
         column, and matching the existing constraints, the constraints are based on the previous column.
      */
-    static Map<Integer, Long> analyzeColumn(int colIdx, Constraints constraints, boolean[][] drawing) {
+    static Map<Integer, Long> analyzeColumn(int colIdx, Constraints constraints, boolean[][] drawing, Map<Integer, List<int[]>> memo) {
+        int colBits = columnToBits(colIdx, drawing);
+        List<int[]> combinations;
+        if ((combinations = memo.get(colBits)) == null) {
+            combinations = generateCombinations(colIdx, drawing);
+            memo.put(colBits, combinations);
+            if (DEBUG) log(format(
+                "+ finishing analyzing column %d\nsolutions are (%d):\n%s\n",
+                colIdx,
+                combinations.size(),
+                combinations.stream()
+                             .map(s -> dumpSolution(s, drawing.length + 1))
+                             .collect(Collectors.joining("---\n"))
+            ));
+        } else {
+            if (DEBUG) log(format(
+                "+ found solutions (%d) from memo, for col %d, drawing:%n%s%n",
+                colIdx,
+                combinations.size(),
+                dumpColumn(colBits, drawing.length)
+            ));
+        }
+
+        /*
+            merge the permutations with the existing constraints, we will
+            match the left columns with right columns of existing constraints
+            for example:
+            if we have the permutations from previous constraints
+                ?X->2
+                ?Z->3
+            and current columns
+                XY
+                ZW
+                ZY
+            the merge will be:
+                ?XY->2
+                ?ZW->3
+                ?ZY->3
+            and finally we just care about the right column
+                ?Y->5
+                ?W->3
+         */
+        return mergePermutations(constraints, combinations);
+    }
+
+    static List<int[]> generateCombinations(int colIdx, boolean[][] drawing) {
         final Vertex root = new Root();
 
         List<Vertex> previousVertices = Collections.singletonList(root);
@@ -357,13 +421,17 @@ public class Solution {
                  colIdx,
                  drawing[rowIdx][colIdx] ? 1 : 0
              ));
-            Piece[] allowedPieces = constraints
-                .filterPiecesByPreviousCol(
-                    drawing[rowIdx][colIdx] ? PRODUCES_ONE : PRODUCES_ZERO,
-                    rowIdx
-                )
-                .toArray(Piece[]::new);
 
+            Piece[] allowedPieces = drawing[rowIdx][colIdx] ? PRODUCES_ONE : PRODUCES_ZERO;
+            if (rowIdx == 0) {
+                /*
+                    As all combinations are symmetric, we don't want to analyze all pieces for the
+                    first row, we just want the symmetric ones.
+                 */
+                allowedPieces = Arrays.stream(allowedPieces)
+                                      .filter(piece -> UNIQUE_DRAWINGS.contains(piece.drawing))
+                                      .toArray(Piece[]::new);
+            }
             List<Vertex> previousVerticesForRow = new ArrayList<>();
             for (Piece allowedPiece : allowedPieces) {
                 PieceVertex vertex = null;
@@ -389,39 +457,20 @@ public class Solution {
         // now we need to analyze the graph, to build all possible columns
         // we will store the combinations in a tuple of ints, first index is current column
         // second index is next column
-        List<int[]> combinations = extractCombinations(root, drawing.length + 1);
-        if (DEBUG) log(format(
-            "+ finishing analyzing column %d\nsolutions are (%d):\n%s\n",
-            colIdx,
-            combinations.size(),
-            combinations.stream()
-                        .map(s -> dumpSolution(s, drawing.length + 1))
-                        .collect(Collectors.joining("---\n"))
-        ));
-
-        /*
-            merge the permutations with the existing constraints, we will
-            match the left columns with right columns of existing constraints
-            for example:
-            if we have the permutations from previous constraints
-                ?X->2
-                ?Z->3
-            and current columns
-                XY
-                ZW
-                ZY
-            the merge will be:
-                ?XY->2
-                ?ZW->3
-                ?ZY->3
-            and finally we just care about the right column
-                ?Y->5
-                ?W->3
-         */
-        return mergePermutations(constraints, combinations);
+        return extractCombinations(root, drawing.length + 1);
     }
 
-    private static List<int[]> extractCombinations(Vertex root, int numberOfRows) {
+    static int columnToBits(int colIdx, boolean[][] drawing) {
+        int res = 0;
+        for (int i = drawing.length - 1; i >= 0; i--) {
+            if (drawing[i][colIdx]) {
+                res |= 1 << i;
+            }
+        }
+        return res;
+    }
+
+    static List<int[]> extractCombinations(Vertex root, int numberOfRows) {
         // do a DFS and extract all combinations
         return extractCombinationsDFS(root, new HashMap<>(), 0, numberOfRows);
     }
@@ -444,18 +493,26 @@ public class Solution {
             }
         }
 
-        // store the value in the visited map, we are acyclic so we can do it here
-        visited.put(current, combinations);
+        // if we are at first depth, and the current drawing is not symmetric, we need double the solutions
+        // if we have
+        // AB
+        // CD
+        // we also want
+        // BA
+        // DC
+        // (because at first level, we analyzed only the unique drawings)
+        if (depth == 1 && current.hasNotSymmetricDrawing()) {
+            List<int[]> symmetricCombinations = new ArrayList<>(combinations.size());
+            for (int[] combination : combinations) {
+                symmetricCombinations.add(new int[]{combination[1], combination[0]});
+            }
+            combinations.addAll(symmetricCombinations);
+        }
 
-        // fixme
-//        if (DEBUG) log(format(
-//            "%s> vertex %s, produces:\n%s\n",
-//            generateDepthPrefix(depth),
-//            current.dump(),
-//            combinations.stream()
-//                        .map(s -> dumpSolution(s, numberOfRows - depth + 1))
-//                        .collect(Collectors.joining("---\n"))
-//        ));
+        if (depth > 1) {
+            // store the value in the visited map, we are acyclic so we can do it here
+            visited.put(current, combinations);
+        }
 
         return combinations;
     }
@@ -482,9 +539,17 @@ public class Solution {
     public static int solution(boolean[][] g) {
         Constraints constraints = new NoConstraints();
         Map<Integer, Long> columnPermutations = new HashMap<>();
+
+        /*
+            we are analyzing columns by columns, a column is containing 9 rows maximum.
+            So we have 2^9 possible columns. Each time we find some combinations, we will
+            store them. Like that if we meet another similar column, we will not have to
+            compute same combinations again
+         */
+        final Map<Integer, List<int[]>> memo = new HashMap<>();
         for (int colIdx = 0; colIdx < g[0].length; colIdx++) {
             if (DEBUG) log("=> analyze column " + colIdx);
-            columnPermutations = analyzeColumn(colIdx, constraints, g);
+            columnPermutations = analyzeColumn(colIdx, constraints, g, memo);
             constraints = new PreviousColConstraints(columnPermutations);
         }
         final long permutations = columnPermutations.values().stream().reduce(Long::sum).orElse(0L);
@@ -517,24 +582,5 @@ public class Solution {
     static String formatBinary(long number, int width) {
         return format("%" + width + "s", Long.toBinaryString(number))
             .replace(" ", "0");
-    }
-
-    static String generateDepthPrefix(int depth) {
-        StringBuilder prefix = new StringBuilder();
-        //noinspection StringRepeatCanBeUsed
-        for (int i = 0; i < depth; i++) {
-            prefix.append("  ");
-        }
-        return prefix.toString();
-    }
-
-    public static void main(String[] args) {
-        for (Piece piece : ALL_PIECES) {
-            System.out.printf("## piece %d (%s)%n", piece.drawing, formatBinary(piece.drawing, 4));
-            System.out.printf("top: %s%n", formatBinary(piece.top, 2));
-            System.out.printf("right: %s%n", formatBinary(piece.right, 2));
-            System.out.printf("bottom: %s%n", formatBinary(piece.bottom, 2));
-            System.out.printf("left: %s%n", formatBinary(piece.left, 2));
-        }
     }
 }

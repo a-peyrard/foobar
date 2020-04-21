@@ -33,6 +33,316 @@ class SolutionTest {
     }
 
     @Test
+    void it_should_validate_first_three_columns_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, true, false},
+            {true, true, false},
+            {true, true, false},
+            {false, true, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            114,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_first_four_columns_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, true, false, true},
+            {true, true, false, false},
+            {true, true, false, false},
+            {false, true, false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            308,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_four_columns_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {false, true, true, false},
+            {true, true, true, false},
+            {false, false, false, true},
+            {true, true, false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            71,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_three_columns_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, true, false},
+            {true, true, false},
+            {false, false, true},
+            {true, false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            48,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_small_subset_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {false, false, true},
+            {true, false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            38,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_smallest_subset_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {false, false},
+            {true, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            38,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, false},
+            {true, false},
+            {false, true},
+            {false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            85,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_top_3_rows_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, false},
+            {true, false},
+            {false, true},
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            22,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_bottom_3_rows_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, false},
+            {false, true},
+            {false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            46,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_middle_2_rows_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, false},
+            {false, true},
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            12,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_top_2_rows_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true, false},
+            {true, false},
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            20,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_two_columns_bottom_2_rows_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {false, true},
+            {false, false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            38,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_last_column_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {false},
+            {false},
+            {true},
+            {false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            76,
+            res
+        );
+    }
+
+    @Test
+    void it_should_validate_one_before_last_column_of_first_case() {
+        // GIVEN
+        var g = new boolean[][]{
+            {true},
+            {true},
+            {false},
+            {false}
+        };
+
+        // WHEN
+        var start = System.nanoTime();
+        var res = Solution.solution(g);
+        var end = System.nanoTime();
+        System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
+
+        // THEN
+        assertEquals(
+            52,
+            res
+        );
+    }
+
+    @Test
     void it_should_validate_huge_case() {
         // GIVEN
         var g = new boolean[][]{
@@ -47,7 +357,7 @@ class SolutionTest {
 
         // WHEN
         var start = System.nanoTime();
-        var res = Solution.solution(g);
+        @SuppressWarnings("unused") var res = Solution.solution(g);
         var end = System.nanoTime();
         System.out.printf("computed in %dms%n", (end - start) / 1_000_000);
 
